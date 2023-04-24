@@ -9,10 +9,9 @@ void printProcessInformation(){
 
 int main(void){
 
-    for(size_t i = 0; i < 2; i++){
+        fork();
         fork();
         printProcessInformation();
-    }    
     
     return EXIT_SUCCESS;
 }
