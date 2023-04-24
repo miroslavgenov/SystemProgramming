@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cpuid.h>
+#include <string.h>
 
 #define CPU_IS_SUPPORTED 1
 #define CPU_IS_NOT_SUPPORTED 0
+#define TOTAL_NUMBER_OF_ADDRS_WITH_ASCII_VALUE 3
 
 int is_cpu_supported(int );
 void should_print_manifacturer_id_string(int , unsigned int* []);
@@ -30,7 +32,9 @@ main(void)
     unsigned int eax = 0, ebx, ecx ,edx;
     int cpu_support_status = __get_cpuid(eax, &eax, &ebx, &edx, &ecx);
 
-    unsigned int* addrs_with_stored_ascii_value[3] = {&ebx, &ecx, &edx};
+    unsigned int* addrs_with_stored_ascii_value[TOTAL_NUMBER_OF_ADDRS_WITH_ASCII_VALUE] = {
+        &ebx, &ecx, &edx
+    };
     
     should_print_manifacturer_id_string(cpu_support_status, addrs_with_stored_ascii_value);
 
@@ -54,7 +58,7 @@ is_cpu_supported(int cpu_support_status){
 
 void
 print_the_cpu_manufacturer_id_string(unsigned int* addresses[]){
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < TOTAL_NUMBER_OF_ADDRS_WITH_ASCII_VALUE; i++){
         convert_the_value_to_string_and_print_as_char(*addresses[i]);
     }
 }
@@ -63,7 +67,7 @@ void
 convert_the_value_to_string_and_print_as_char(unsigned int value){
     char *ascii_string = (char*)&value;
 
-    for(int i = 0; i < sizeof(int); i++){
+    for(int i = 0; i < strlen(ascii_string); i++){
         printf("%c", ascii_string[i]);
     }
 }
