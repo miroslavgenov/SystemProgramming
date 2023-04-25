@@ -1,5 +1,14 @@
 {
     "files.associations": {
-        "cpuid.h": "c"
+        "cpuid.h": "c",
+        "fs.h": "c",
+        "proc_fs.h": "c",
+        "init.h": "c",
+        "module.h": "c",
+        "list.h": "c",
+        "version.h": "c",
+        "uaccess.h": "c",
+        "cdev.h": "c",
+        "testdev.h": "c"
     }
 }

@@ -10,7 +10,7 @@
 int is_cpu_supported(int );
 void should_print_manifacturer_id_string(int , unsigned int* []);
 void print_the_cpu_manufacturer_id_string(unsigned int* []);
-void convert_the_value_to_string_and_print_as_char(unsigned int );
+void convert_to_string_and_print_as_char(unsigned int );
 
 int
 main(void)
@@ -59,12 +59,12 @@ is_cpu_supported(int cpu_support_status){
 void
 print_the_cpu_manufacturer_id_string(unsigned int* addresses[]){
     for(int i = 0; i < TOTAL_NUMBER_OF_ADDRS_WITH_ASCII_VALUE; i++){
-        convert_the_value_to_string_and_print_as_char(*addresses[i]);
+        convert_to_string_and_print_as_char(*addresses[i]);
     }
 }
 
 void
-convert_the_value_to_string_and_print_as_char(unsigned int value){
+convert_to_string_and_print_as_char(unsigned int value){
     char *ascii_string = (char*)&value;
 
     for(int i = 0; i < strlen(ascii_string); i++){
