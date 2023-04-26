@@ -1,0 +1,1 @@
+cmd_/home/user/Desktop/systemProgramming/AsenIliev/homeWork/cpuIdDriver/finalProject/Module.symvers := sed 's/ko$$/o/' /home/user/Desktop/systemProgramming/AsenIliev/homeWork/cpuIdDriver/finalProject/modules.order | scripts/mod/modpost -m -a  -o /home/user/Desktop/systemProgramming/AsenIliev/homeWork/cpuIdDriver/finalProject/Module.symvers -e -i Module.symvers   -T -
