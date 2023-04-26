@@ -1,0 +1,1 @@
+cmd_/home/user/Desktop/systemProgramming/AsenIliev/homeWork/cpuIdDriver/finalProject/char_driver_CT4872.mod := printf '%s\n'   char_driver_CT4872.o | awk '!x[$$0]++ { print("/home/user/Desktop/systemProgramming/AsenIliev/homeWork/cpuIdDriver/finalProject/"$$0) }' > /home/user/Desktop/systemProgramming/AsenIliev/homeWork/cpuIdDriver/finalProject/char_driver_CT4872.mod

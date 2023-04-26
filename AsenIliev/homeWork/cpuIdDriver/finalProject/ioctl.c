@@ -5,7 +5,7 @@
 #include <sys/ioctl.h>		/* ioctl */
 
 #include "cpuid_helper.h"
-#include "char_driver.h"
+#include "char_driver_CT4872.h"
 
 void main(void)
 {	

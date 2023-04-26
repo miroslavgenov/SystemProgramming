@@ -7,7 +7,7 @@
 #include <linux/ioctl.h>
 #include <linux/proc_fs.h>
 
-#include "char_driver.h"
+#include "char_driver_CT4872.h"
 
 MODULE_LICENSE("Dual BSD/GPL");
 
