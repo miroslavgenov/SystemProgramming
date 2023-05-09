@@ -1,20 +1,50 @@
 # If KERNELRELEASE is defined, we've been invoked from the
 # kernel build system and can use its language.
+
+# KERNELRELEASE-  it locates the kernel source directory(the kernel build tree)
 ifneq ($(KERNELRELEASE),)
-obj-m := char_driver_CT4872.o
+
+# obj-m : = test_char.o  states that there is one module to be built from the
+# object file test_char.o. The resulting module is named test_char.ko
+#  after being built from the object file.
+
+# A makefile symbol used by the kernel build system to determine which modules
+# should be built in the current directory.
+obj-m := test_char.o
+
 # Otherwise we were called directly from the command
 # line; invoke the kernel build system.
 else
+# If you are not actually running the kernel that you are building for
+# , you can supply a KERNELDIR= option on the
+# command line, set the KERNELDIR environment variable, or rewrite the line that sets
+# KERNELDIR in the makefile.
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
+
+
+# Once the kernel source tree has been found, the makefile
+# invokes the default: target, which runs a second make command (parameterized in
+# the makefile as $(MAKE)) to invoke the kernel build system as described previously.
+# On the second reading, the makefile sets obj-m, and the kernel makefiles take care of
+# actually building the module.
 default:  modules createsharedlib linksharedlib
 
+
 modules:	
+# this 'make' requers to buld my module
+# '-C' command changes my directory with the provied kernel source directory 
+# The M= option causes that makefile to move back into your module source
+# directory before trying to build the modules target.
+# This target, in turn, refers to the list
+# of modules found in the obj-m variable, which I set to char_driver_CT4872.o.
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 
+# suzdavane na shared lib
 createsharedlib:
 	gcc -shared -fpic -o cpuid_helper.so cpuid_helper.c	
 
+# linkvane na shared lib s ioctl.c i suzdavane na executable file
 linksharedlib:
 	gcc -o WriteCpuManufacturerId ioctl.c -L -lib ./"cpuid_helper.so"
 endif

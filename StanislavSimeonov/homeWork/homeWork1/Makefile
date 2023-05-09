@@ -1,5 +1,2 @@
 all:
-	gcc -o main main.c
-
-clean:
-	rm main
+	gcc -o main main1_CT4872.c

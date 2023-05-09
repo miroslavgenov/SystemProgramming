@@ -1,0 +1,25 @@
+{
+    "files.associations": {
+        "cpuid_helper.h": "c",
+        "stat.h": "c",
+        "module.h": "c",
+        "init.h": "c",
+        "unistd.h": "c",
+        "test_char.h": "c",
+        "new": "c",
+        "cstdlib": "c",
+        "cassert": "c",
+        "climits": "c",
+        "cmath": "c",
+        "compare": "c",
+        "concepts": "c",
+        "cstdarg": "c",
+        "cstddef": "c",
+        "cstdio": "c",
+        "type_traits": "c",
+        "limits": "c",
+        "*.tcc": "c",
+        "cstdint": "c",
+        "typeinfo": "c"
+    }
+}
