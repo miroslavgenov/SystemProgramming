@@ -772,21 +772,3 @@ MODULE_LICENSE("GPL");
 
 MODULE_AUTHOR("Miroslav Genov CT4872");	/* Who wrote this module? */
 MODULE_DESCRIPTION("Creates character device driver and file in proc.Gets the message from the device driver and puts it in the proc file");	/* What does this module do */
-
-
-/*
-*	MODULE_LICENSE is used to tell the
-*	kernel that this module bears a free license; without such a declaration, the kernel
-*	complains when the module is loaded.
-
-* The GPL allows
-* anybody to redistribute, and even sell, a product covered by the GPL, as long as the
-* recipient has access to the source and is able to exercise the same rights. Addition-
-* ally, any software product derived from a product covered by the GPL must, if it is
-* redistributed at all, be released under the GPL.
-*/
-MODULE_LICENSE("GPL");
-
-
-MODULE_AUTHOR("Miroslav Genov CT4872");	/* Who wrote this module? */
-MODULE_DESCRIPTION("Creates character device driver and file in proc.Gets the message from the device driver and puts it in the proc file");	/* What does this module do */

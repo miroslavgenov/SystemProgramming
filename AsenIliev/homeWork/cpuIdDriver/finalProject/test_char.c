@@ -56,6 +56,12 @@ static char *char_driver_manufacturer_cpu_name_ptr = " ";
 /*указател към символният низ на името на производителят на процесорът за proc файлът  */
 static char *proc_manufacturer_cpu_name_ptr= " "; 
 
+struct proc_dir_entry* proc_dir;
+
+int chr_dev_register_status;
+
+
+int read_from_proc = 0;
 
 
 
@@ -92,6 +98,7 @@ loff_t f_pos;
 
 */
 static ssize_t hello_read(struct file *filp,char *buffer,size_t count,loff_t * f_pos){
+	    printk(KERN_ALERT"\n hello_read \n");
 
 	int bytes_written = 0;
 	int bytes_to_write = 1;
@@ -125,11 +132,13 @@ static ssize_t hello_read(struct file *filp,char *buffer,size_t count,loff_t * f
 	В случаят ползвам проста реализация
 
 */
-ssize_t hello_write(struct file *filp, const char __user *buffer, size_t len, loff_t * offset){
+ssize_t hello_write(struct file *filp, const char __user *buffer, size_t len, loff_t * f_pos){
+	printk(KERN_ALERT"\n hello_write \n");
+
 	/*копирай съобщението от буферът към името на прозиводителят и е дадена дължината на буферът*/
 	copy_from_user(manufacturer_name,buffer,len);
 
-	return strlen(manufacturer_name);
+	return 0;
 }
 
 /*
@@ -154,6 +163,7 @@ struct file
 */
 static int hello_open(struct inode *inode, struct file *filp)
 {
+	printk(KERN_ALERT"\n hello_open \n");
 
 	if (is_driver_open){
 		return -EBUSY;
@@ -179,6 +189,8 @@ static int hello_open(struct inode *inode, struct file *filp)
 */
 static int hello_release(struct inode *inode, struct file *filp)
 {
+	    printk(KERN_ALERT"\n hello_release \n");
+
 	//устройството е затворено
 	is_driver_open = 0;
 	
@@ -297,6 +309,7 @@ ioctl предлага входно изходен контрол, ако е NUL
 
 
 int	proc_open(struct inode *, struct file *){
+    printk(KERN_ALERT"\nproc_open \n");
 	
 	if(is_proc_entry_open){
 		return -EBUSY;
@@ -304,38 +317,33 @@ int	proc_open(struct inode *, struct file *){
 
 	is_proc_entry_open = 1;
 
-    printk(KERN_ALERT"proc_open\n");
+    // printk(KERN_ALERT"proc_open\n");
 	return EXIT_SUCCESS;
 }
 
-// int len = 1;
-ssize_t	proc_read(struct file *filp, char __user * buffer, size_t length, loff_t * offs){
+
+
+
+ssize_t	proc_read(struct file *filp, char __user * buffer, size_t length, loff_t * f_pos){
     printk(KERN_ALERT"\nproc_read \n");
 
-	int bytes_to_be_written = 1;
+	if(read_from_proc){
+		read_from_proc = 0;
 
-	int bytes_written;
-
-	//копирай 1 символ от името на производителят в буферът
-    int are_bytes_written = copy_to_user(buffer++,proc_manufacturer_cpu_name_ptr++,bytes_to_be_written);
-	
-	if(are_bytes_written){
-		bytes_written = bytes_to_be_written;
-	}
-
-	//ако низът е равен на 0, достигнали неговият край
-	if(*proc_manufacturer_cpu_name_ptr == 0){
 		return EXIT_SUCCESS;
 	}
 
-	return bytes_written;
+	read_from_proc = 1;
 
+	copy_to_user(buffer,proc_manufacturer_cpu_name_ptr,strlen(proc_manufacturer_cpu_name_ptr));
+
+	return length;
 }
 
-// ssize_t	proc_write(struct file *, const char __user *, size_t, loff_t *){
-//     printk(KERN_ALERT"\nproc_write\n");
-//     return EXIT_SUCCESS;
-// }
+ssize_t	proc_write(struct file *, const char __user *, size_t, loff_t *){
+    printk(KERN_ALERT"\nproc_write\n");
+    return EXIT_SUCCESS;
+}
 
 int	proc_release(struct inode *, struct file *){
     printk(KERN_ALERT"\nproc_releas\n");
@@ -367,11 +375,18 @@ struct proc_ops proc_ops = {
 
 	
 
-struct proc_dir_entry* proc_dir;
-int register_status;
 
+/*
+Функции започващи с __ са от ниско.
 
+Инициализационни функции трябва да са статична, тъкато не е предвидена да е видима извън файлът
+например "chdr.c".
+Символът __init за инициализационна функция, която функция
+се ползва само по реме на инициализация.
+*/
 static int __init hello_init(void){
+
+
 
 
     printk(KERN_ALERT"Hello proc\n");
@@ -379,43 +394,91 @@ static int __init hello_init(void){
 	
 	printk(KERN_ALERT "The device number is %d",MAJOR_NUMBER);
 
-    proc_dir = proc_create(PROC_NAME,0,NULL,&proc_ops);
+	/*
+		създаване на /proc файл
+		функция proc_create връща като резултат proc_dir_entry(директория на записаният прок файл)
+		параметри:
 
-	register_status =  register_chrdev(MAJOR_NUMBER, DEVICE_NAME, &fops);
+		name е името на /proc файлът
+
+		mode  е правата върху файлът.Тъй като /proc го използвам само за четене mode ще бъде 444 
+
+		parent показва директорията, в която /proc файлът трябва да бъде направен.
+		Ако NULL то файлът ще бъде направен в /proc
+
+		proc_ops файлови операции
+	*/
+    proc_dir = proc_create(PROC_NAME,0444,NULL,&proc_ops);
+
+	/*
+		Това е старият начин, по който се регистрира char driver
+		register_chrdev(number,dn,fpos);
+
+		major number ако е 0 major number ще бъде избран от текущо свободните свободните
+
+		name името на устройството което ще бъде асоциирано с major number 		
+
+		функцията register_chrdev връща 0 при успешна регистрация, и
+		отрицателно число при неуспешна
+	*/
+	chr_dev_register_status =  register_chrdev(MAJOR_NUMBER, DEVICE_NAME, &fops);
 
 
-	//TODO: if have_error_registering then unregister
-	if(register_status < 0){
-		printk(KERN_ALERT "Cant register chardev\nError : %d",register_status);
+	if(chr_dev_register_status < 0){
+		printk(KERN_ALERT "Cant register chardev\nError : %d",chr_dev_register_status);
+
+		proc_remove(proc_dir);	
+		unregister_chrdev(MAJOR_NUMBER,DEVICE_NAME);
+
 	}
 	
 	return EXIT_SUCCESS;
 }
 
-
+/*
+Функция с която се премахва /proc/файл и char driver
+Ако не бъде дефинирана такава то няма да бъде позволено да се
+премахне char driver или /proc/.Тази функция трябва да отмени това което е било
+направено в инициализиращата функция
+*/
 static void __exit hello_exit(void){
+	//премахване на /proc/файлът
     proc_remove(proc_dir);	
 	
-
+	//премахване на char driver
 	unregister_chrdev(MAJOR_NUMBER,DEVICE_NAME);
 
 
 	printk(KERN_ALERT "Exit world\n");
 }
 
+
+
+/*
+module_init функцията слъжи за инициализация и ще бъде извикана когато модулът се зареди в ядрото.
+Също проверява дали ауторизиран потребитал може да зареди модулът.
+*/
 module_init(hello_init);
 
+/*
+module_exit функцията служи да се премахне char driver или /proc/файл.
+Тя ще бъде извикана точно преди модулът да бъде премахнат от ядрото.
+*/
 module_exit(hello_exit);
 
+/*
+Лиценз на модълът се използва за да каже на ядрото, че той е безплатен и без
+лиценз ядрото се оплаква.
 
+GPL лицензът позволява всеки да разпространява и дори продава продъкти под този лиценз,
+толкова дълго докогато има достъп до източникът и е способен да изпълнява същите права.
+Ако продуктът бъде отново разпространяван то той трябва да е по GPL лиценз 
+*/
 MODULE_LICENSE("GPL");
 
 
-MODULE_AUTHOR("Miroslav Genov CT4872");	/* Who wrote this module? */
-MODULE_DESCRIPTION("Creates character device driver and file in proc.Gets the message from the device driver and puts it in the proc file");	/* What does this module do */
+//Кой е авторът
+MODULE_AUTHOR("Miroslav Genov CT4872");
 
-MODULE_LICENSE("GPL");
-
-
-MODULE_AUTHOR("Miroslav Genov CT4872");	/* Who wrote this module? */
-MODULE_DESCRIPTION("Creates character device driver and file in proc.Gets the message from the device driver and puts it in the proc file");	/* What does this module do */
+//какво прави
+MODULE_DESCRIPTION("Creates character device driver and file in proc.Gets the message from the device driver and puts it in the proc file");
